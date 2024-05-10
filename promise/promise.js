@@ -16,7 +16,7 @@ class Promise {
   }
 
   resolveDirectly = (value) => {
-    if (!PENDING) return;
+    if (this.state !== PENDING) return;
     this.value = value;
     this.state = FULFILLED;
     this.onFulFilledCallbacks.forEach((func) => {
@@ -40,6 +40,7 @@ class Promise {
       then = value.then;
     } catch (error) {
       this.reject(error);
+      return;
     }
     if (typeof then === "function") {
       let flag = false;
@@ -68,7 +69,7 @@ class Promise {
   };
 
   reject = (reason) => {
-    if (!PENDING) return;
+    if (this.state !== PENDING) return;
     this.state = REJECTED;
     this.reason = reason;
     this.onRejectedCallbacks.forEach((func) => {

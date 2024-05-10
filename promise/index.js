@@ -1,5 +1,5 @@
 const promiseAPlusTest = require("promises-aplus-tests");
-const Promise = require("./promise2.js");
+const Promise = require("./promise.js");
 
 promiseAPlusTest(
   {
