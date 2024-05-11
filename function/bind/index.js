@@ -1,14 +1,14 @@
 /**
  *
- * @param {Function} func
  * @param {Object} context
+ * @param  {...any} args
  */
-function bind(func, context, ...args) {
+function bind(context, ...args) {
+  const func = this;
   context = context || globalThis;
-  return function (..._args) {
-    const finalArgs = args.concat(_args);
-    const result = func.call(context, ...finalArgs);
-    return result;
+  return function () {
+    const finalArgs = args.concat(Array.from(arguments));
+    return func.apply(context, finalArgs);
   };
 }
 

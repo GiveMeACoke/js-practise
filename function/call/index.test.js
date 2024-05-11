@@ -12,7 +12,10 @@ describe("call function", () => {
     // 使用Function.prototype.call调用函数
     const result1 = obj.getValue.call({ value: 100 });
     // 使用你提供的call函数调用函数
-    const result2 = call(obj.getValue, { value: 100 });
+    let temp = Function.prototype.call;
+    Function.prototype.call = call;
+    const result2 = obj.getValue.call({ value: 100 });
+    Function.prototype.call = temp;
 
     expect(result1).toBe(100);
     expect(result2).toBe(100);
@@ -25,8 +28,12 @@ describe("call function", () => {
 
     // 使用Function.prototype.call调用函数
     const result1 = add.call(null, 2, 3);
+    let temp = Function.prototype.call;
+    Function.prototype.call = call;
     // 使用你提供的call函数调用函数
-    const result2 = call(add, null, 2, 3);
+    const result2 =  add.call(null, 2, 3);
+
+    Function.prototype.call = temp;
 
     expect(result1).toBe(5);
     expect(result2).toBe(5);
@@ -39,8 +46,11 @@ describe("call function", () => {
 
     // 使用Function.prototype.call调用函数
     const result1 = sayHello.call();
+    let temp = Function.prototype.call;
+    Function.prototype.call = call;
     // 使用你提供的call函数调用函数
-    const result2 = call(sayHello);
+    const result2 = sayHello.call();
+    Function.prototype.call = temp;
 
     expect(result1).toBe("Hello");
     expect(result2).toBe("Hello");
@@ -55,8 +65,11 @@ describe("call function", () => {
 
     // 使用 Function.prototype.apply 调用函数
     const result1 = greet.call();
+    let temp = Function.prototype.call;
+    Function.prototype.call = call;
     // 使用你提供的 apply 函数调用函数
-    const result2 = call(greet, undefined);
+    const result2 = greet.call();
+    Function.prototype.call = temp;
 
     expect(result1).toBe("Hello, World!");
     expect(result2).toBe("Hello, World!");

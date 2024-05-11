@@ -8,9 +8,11 @@ describe("bind function", () => {
 
     const context = { name: "Alice" };
 
+    const temp = Function.prototype.bind;
+    Function.prototype.bind = bind;
     // 使用 Function.prototype.bind 创建绑定函数
-    const boundFunction = bind(greet, context, "Hello", "!");
-
+    const boundFunction = greet.bind(context, "Hello", "!");
+    Function.prototype.bind = temp;
     // 调用绑定函数
     const result = boundFunction();
 
@@ -25,12 +27,13 @@ describe("bind function", () => {
     }
 
     const consoleSpy = jest.spyOn(console, "log");
-
+    const temp = Function.prototype.bind;
+    Function.prototype.bind = bind;
     // 使用 bind 创建第一个绑定函数
-    const boundLog = bind(log, "this value", 1, 2);
+    const boundLog = log.bind("this value", 1, 2);
     // 使用 bind 创建第二个绑定函数
-    const boundLog2 = bind(boundLog, "new this value", 3, 4);
-
+    const boundLog2 = boundLog.bind("new this value", 3, 4);
+    Function.prototype.bind = temp;
     // 调用绑定函数，并传入新的参数
     boundLog2(5, 6);
 
