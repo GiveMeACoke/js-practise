@@ -113,4 +113,49 @@ class Promise {
   };
 }
 
+Promise.prototype.all = (promises = []) => {
+  if (!Array.isArray(promises)) {
+    throw new TypeError("参数必须是一个promise数组");
+  }
+  const result = Array.from({
+    length: promises.length,
+  });
+  let finishedCount = 0;
+  return new Promise((resolve, reject) => {
+    promises.forEach((p, index, arr) => {
+      p.then(
+        (res) => {
+          finishedCount += 1;
+          result[index] = res;
+          if (finishedCount === arr.length) {
+            resolve(result);
+          }
+        },
+        (reason) => {
+          reject(reason);
+        }
+      );
+    });
+  });
+};
+
+Promise.prototype.race = (promises) => {
+  if (!Array.isArray(promises)) {
+    throw new TypeError("参数必须是一个promise数组");
+  }
+
+  return new Promise((resolve, reject) => {
+    promises.forEach((p) => {
+      p.then(
+        (res) => {
+          resolve(res);
+        },
+        (r) => {
+          reject(r);
+        }
+      );
+    });
+  });
+};
+
 module.exports = Promise;
