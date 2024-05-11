@@ -1,13 +1,11 @@
 const PENDING = "pending";
-
-const FULFILLED = "fulfilled";
-
+const FULFILLED = "FULFILLED";
 const REJECTED = "rejected";
 
 class Promise {
   state;
-  onFulFilledCallbacks = [];
-  onRejectedCallbacks = [];
+  onResolvedCallback = [];
+  onRejectedCallback = [];
   value;
   reason;
   constructor(excutor) {
@@ -16,31 +14,26 @@ class Promise {
   }
 
   resolveDirectly = (value) => {
-    if (this.state !== PENDING) return;
-    this.value = value;
+    if (this.state !== PENDING) {
+      return;
+    }
     this.state = FULFILLED;
-    this.onFulFilledCallbacks.forEach((func) => {
-      func(value);
-    });
+    this.value = value;
+    this.onResolvedCallback.forEach((func) => func(value));
   };
 
   resolve = (value) => {
     if (this === value) {
-      throw new TypeError("循环引用问题");
+      throw new TypeError("死循环了！");
     }
-    if (value === null) {
+    if (value === null) return this.resolveDirectly(value);
+    if (typeof value !== "function" && typeof value !== "object")
       return this.resolveDirectly(value);
-    }
-    if (typeof value !== "object" && typeof value !== "function") {
-      return this.resolveDirectly(value);
-    }
-    // thabled
     let then;
     try {
       then = value.then;
     } catch (error) {
-      this.reject(error);
-      return;
+      return this.reject(error);
     }
     if (typeof then === "function") {
       let flag = false;
@@ -69,50 +62,49 @@ class Promise {
   };
 
   reject = (reason) => {
-    if (this.state !== PENDING) return;
+    if (this.state !== PENDING) {
+      return;
+    }
     this.state = REJECTED;
     this.reason = reason;
-    this.onRejectedCallbacks.forEach((func) => {
-      func(reason);
-    });
+    this.onRejectedCallback.forEach((func) => func(reason));
   };
 
-  then = (onFulFilled, onRejected) => {
+  then = (onFulfilled, onRejected) => {
     return new Promise((resolve, reject) => {
-      const onFulFilledCallback = (value) => {
+      onFulfilled = typeof onFulfilled === "function" ? onFulfilled : (v) => v;
+      onRejected =
+        typeof onRejected === "function"
+          ? onRejected
+          : (reason) => {
+              throw reason;
+            };
+      const onFulfilledCallback = (value) => {
         setTimeout(() => {
           try {
-            if (typeof onFulFilled === "function") {
-              const x = onFulFilled(value);
-              resolve(x);
-            } else {
-              resolve(value);
-            }
+            const x = onFulfilled(value);
+            resolve(x);
           } catch (error) {
             reject(error);
           }
-        }, 0);
+        });
       };
       const onRejectedCallback = (reason) => {
         setTimeout(() => {
           try {
-            if (typeof onRejected === "function") {
-              const x = onRejected(reason);
-              resolve(x);
-            } else {
-              reject(reason);
-            }
+            const x = onRejected(reason);
+            resolve(x);
           } catch (error) {
             reject(error);
           }
-        }, 0);
+        });
       };
       if (this.state === PENDING) {
-        this.onFulFilledCallbacks.push(onFulFilledCallback);
-        this.onRejectedCallbacks.push(onRejectedCallback);
+        this.onResolvedCallback.push(onFulfilledCallback);
+        this.onRejectedCallback.push(onRejectedCallback);
       }
       if (this.state === FULFILLED) {
-        onFulFilledCallback(this.value);
+        onFulfilledCallback(this.value);
       }
       if (this.state === REJECTED) {
         onRejectedCallback(this.reason);
