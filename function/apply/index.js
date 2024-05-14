@@ -1,11 +1,10 @@
-function apply(context, args) {
-  const func = this;
-  context = context || globalThis;
-  context._func = func;
+function apply(ctx, args) {
+  ctx = ctx || globalThis;
   args = args || [];
-  const result = context._func(...args);
-  delete context._func;
-  return result;
+  const funcKey = Symbol.for("func");
+  ctx[funcKey] = this;
+  const result = ctx[funcKey](...args)
+  delete ctx[funcKey]
+  return result
 }
-
 exports.apply = apply;

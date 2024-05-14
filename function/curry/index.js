@@ -17,4 +17,15 @@ function curry(func) {
   return _curry;
 }
 
-exports.curry = curry;
+/**
+ * bind实现
+ */
+function curry1(func) {
+  return function _func(...args) {
+    if (func.length === args.length) {
+      return func.apply(this, args);
+    }
+    return _func.bind(this, ...args);
+  };
+}
+exports.curry = curry1;

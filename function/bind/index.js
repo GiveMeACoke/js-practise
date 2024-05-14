@@ -4,11 +4,13 @@
  * @param  {...any} args
  */
 function bind(context, ...args) {
-  const func = this;
   context = context || globalThis;
-  return function () {
-    const finalArgs = args.concat(Array.from(arguments));
-    return func.apply(context, finalArgs);
+  return (..._args) => {
+    const funcKey = Symbol.for("func");
+    context[funcKey] = this;
+    const res = context[funcKey](...args.concat(_args));
+    delete context[funcKey];
+    return res;
   };
 }
 

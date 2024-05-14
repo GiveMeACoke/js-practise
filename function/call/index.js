@@ -1,10 +1,10 @@
 function call(context, ...args) {
-  const func = this
-  context = context || globalThis
-  context.func = func
-  const result = context.func(...args)
-  delete context.func
-  return result
+  context = context || globalThis;
+  const funcKey = Symbol.for("func");
+  context[funcKey] = this;
+  const res = context[funcKey](...args);
+  delete context[funcKey];
+  return res;
 }
 
 exports.call = call;
